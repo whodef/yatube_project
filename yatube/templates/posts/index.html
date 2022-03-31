@@ -1,19 +1,20 @@
-<!DOCTYPE html> <!-- Используется html 5 версии -->
+<!DOCTYPE html>
 {% extends 'base.html' %}
 {% block content %}
-Главная страница
-<article>
-    {% for post in posts %}
+{% for post in posts %}
+  <article>
     <ul>
-        <li>Автор: {{ post.author.get_full_name }}</li>
-        <li>Дата публикации: {{ post.pub_date|date:"d E Y" }}</li>
+      <li>Автор: {{ post.author.get_full_name }}</li>
+      <li>Дата публикации: {{ post.pub_date|date:"d E Y" }}</li>
     </ul>
     <p>{{ post.text }}</p>
     {% if post.group %}
-    <a href="{% url 'posts:group_posts'  post.group.slug %}">все записи группы</a>
+      <a href="{% url 'posts:group_posts'  post.group.slug %}">все записи группы</a>
     {% endif %}
-</article>
-<!-- под последним постом нет линии -->
-{% if not forloop.last %}<hr>{% endif %}
+  </article>
+  <!-- под последним постом нет линии -->
+  {% if not forloop.last %}
+    <hr>
+  {% endif %}
 {% endfor %}
 {% endblock %}
