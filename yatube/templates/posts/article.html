@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<article>
+  <ul class="list-group">
+    <li class="list-group-item list-group-item-success">
+      Автор: {{ post.author.get_full_name }}
+      <a href="{% url 'posts:profile' post.author.username %}">все посты пользователя</a>
+    </li>
+    <li class="list-group-item list-group-item-success">
+      Дата публикации: {{ post.pub_date|date:"d E Y" }}
+    </li>
+  </ul>
+  <p class="alert alert-warning">{{ post.text }}</p>
+  <a href="{% url 'posts:post_detail' post.id %}">подробная информация </a>
+</article>
+
+{% if post.group %}
+  <a href="{% url 'posts:group_posts'  post.group.slug %}">
+    все записи группы
+  </a>
+{% endif %}
+
+<!-- под последним постом нет линии -->
+{% if not forloop.last %}
+  <hr>
+{% endif %}

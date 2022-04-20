@@ -2,12 +2,12 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  Записи сообщества {{ group.title }}
+  Профайл пользователя {{ author.username }}
 {% endblock %}
 
 {% block content %}
-  <h1>{{ group.title }}</h1>
-  <p>{{ group.description }}</p>
+  <h1>Все посты пользователя {{ user.username }}</h1>
+  <h3>Всего постов: {{ user.posts.count }}</h3>
 
   {% for post in page_obj %}
     {% include 'posts/article.html' %}
