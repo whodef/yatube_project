@@ -10,7 +10,7 @@
   <p>{{ group.description }}</p>
 
   {% for post in page_obj %}
-    {% include 'posts/article.html' %}
+    {% include 'includes/article.html' %}
   {% endfor %}
 
   {% include 'posts/paginator.html' %}

@@ -2,7 +2,13 @@
 <article>
   <ul class="list-group">
     <li class="list-group-item list-group-item-success">
-      Автор: {{ post.author.get_full_name }}
+
+      {% if post.author.get_full_name %}
+        Автор: {{ post.author.get_full_name }}
+      {% else %}
+        Автор: {{ post.author.username }}
+      {% endif %}
+
       <a href="{% url 'posts:profile' post.author.username %}">все посты пользователя</a>
     </li>
     <li class="list-group-item list-group-item-success">
@@ -19,7 +25,7 @@
   </a>
 {% endif %}
 
-<!-- под последним постом нет линии -->
+{# под последним постом нет линии #}
 {% if not forloop.last %}
   <hr>
 {% endif %}

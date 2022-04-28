@@ -110,5 +110,5 @@ def post_edit(request, post_id):
             'form': form,
         }
         return render(request, 'posts/post_edit.html', context)
-    else:
-        return redirect('posts:post_detail', post_id=post_id)
+
+    return redirect('posts:post_detail', post_id=post_id)

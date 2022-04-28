@@ -10,7 +10,7 @@
   <h3>Всего постов: {{ user.posts.count }}</h3>
 
   {% for post in page_obj %}
-    {% include 'posts/article.html' %}
+    {% include 'includes/article.html' %}
   {% endfor %}
 
   {% include 'posts/paginator.html' %}
