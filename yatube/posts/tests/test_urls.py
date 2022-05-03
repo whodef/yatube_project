@@ -81,6 +81,7 @@ class PostsURLsTests(TestCase):
     def test_create_url_redirect_anonymous(self):
         """Редирект /create/ для анонимного пользователя."""
         response = self.guest_client.get('/create/', follow=True)
+        # Без статус-кода
         self.assertRedirects(response, '/auth/login/?next=/create/')
         print("Перенаправление вместо создания записи работает.")
 
