@@ -21,7 +21,8 @@ class Group(models.Model):
 
 class Post(models.Model):
     text = models.TextField(
-        verbose_name='Текст'
+        verbose_name='Текст',
+        help_text='Добавьте текст для новой записи'
     )
     pub_date = models.DateTimeField(
         auto_now_add=True
@@ -38,6 +39,7 @@ class Post(models.Model):
         blank=True,
         null=True,
         verbose_name='Группа',
+        help_text='Выберите группу для новой записи',
     )
 
     class Meta:
