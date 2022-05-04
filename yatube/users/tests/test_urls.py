@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 
@@ -28,25 +30,25 @@ class UserUrlTests(TestCase):
         пользователю.
         """
         guest_client_status_codes = {
-            '/auth/logout/': 200,
-            '/auth/login/': 200,
-            '/auth/password_change/done/': 302,
-            '/auth/password_change/': 302,
-            '/auth/password_reset/complete/': 200,
-            '/auth/password_reset/done/': 200,
-            '/auth/password_reset/': 200,
-            '/auth/signup/': 200,
+            '/auth/logout/': HTTPStatus.OK,
+            '/auth/login/': HTTPStatus.OK,
+            '/auth/password_change/done/': HTTPStatus.FOUND,
+            '/auth/password_change/': HTTPStatus.FOUND,
+            '/auth/password_reset/complete/': HTTPStatus.OK,
+            '/auth/password_reset/done/': HTTPStatus.OK,
+            '/auth/password_reset/': HTTPStatus.OK,
+            '/auth/signup/': HTTPStatus.OK,
         }
 
         auth_client_status_codes = {
-            '/auth/logout/': 200,
-            '/auth/login/': 200,
-            '/auth/password_change/done/': 302,
-            '/auth/password_change/': 302,
-            '/auth/password_reset/complete/': 200,
-            '/auth/password_reset/done/': 200,
-            '/auth/password_reset/': 200,
-            '/auth/signup/': 200,
+            '/auth/logout/': HTTPStatus.OK,
+            '/auth/login/': HTTPStatus.OK,
+            '/auth/password_change/done/': HTTPStatus.FOUND,
+            '/auth/password_change/': HTTPStatus.FOUND,
+            '/auth/password_reset/complete/': HTTPStatus.OK,
+            '/auth/password_reset/done/': HTTPStatus.OK,
+            '/auth/password_reset/': HTTPStatus.OK,
+            '/auth/signup/': HTTPStatus.OK,
         }
 
         clients_status_codes = {
