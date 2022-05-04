@@ -30,25 +30,25 @@ class UserUrlTests(TestCase):
         пользователю.
         """
         guest_client_status_codes = {
-            '/auth/logout/': HTTPStatus.OK,
+            '/auth/signup/': HTTPStatus.OK,
             '/auth/login/': HTTPStatus.OK,
+            '/auth/logout/': HTTPStatus.OK,
             '/auth/password_change/done/': HTTPStatus.FOUND,
             '/auth/password_change/': HTTPStatus.FOUND,
             '/auth/password_reset/complete/': HTTPStatus.OK,
             '/auth/password_reset/done/': HTTPStatus.OK,
             '/auth/password_reset/': HTTPStatus.OK,
-            '/auth/signup/': HTTPStatus.OK,
         }
 
         auth_client_status_codes = {
-            '/auth/logout/': HTTPStatus.OK,
+            '/auth/signup/': HTTPStatus.OK,
             '/auth/login/': HTTPStatus.OK,
+            '/auth/logout/': HTTPStatus.OK,
             '/auth/password_change/done/': HTTPStatus.FOUND,
             '/auth/password_change/': HTTPStatus.FOUND,
             '/auth/password_reset/complete/': HTTPStatus.OK,
             '/auth/password_reset/done/': HTTPStatus.OK,
             '/auth/password_reset/': HTTPStatus.OK,
-            '/auth/signup/': HTTPStatus.OK,
         }
 
         clients_status_codes = {
@@ -63,7 +63,7 @@ class UserUrlTests(TestCase):
                     self.assertEqual(response.status_code, status_code)
         print('Страницы доступны любому пользователю, коды верные.')
 
-    def test_static_url_uses_correct_template(self):
+    def test_url_uses_correct_template(self):
         """Проверка соответствия шаблонов к их URL'ам."""
         templates_urls = {
             '/auth/logout/': 'users/logged_out.html',
