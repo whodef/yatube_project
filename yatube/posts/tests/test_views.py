@@ -205,7 +205,7 @@ class PostsViewsTests(TestCase):
             '/': 'posts/index.html',
             '/group/views_group/': 'posts/group_list.html',
             '/create/': 'posts/post_create.html',
-            f'/posts/{self.post.id}/':'posts/post_detail.html',
+            f'/posts/{self.post.id}/': 'posts/post_detail.html',
             f'/posts/{self.post.id}/edit/':
                 'posts/post_detail.html',
             '/profile/views_user/': 'posts/profile.html',
