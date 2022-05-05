@@ -69,7 +69,7 @@ class PostsViewsTests(TestCase):
             reverse('posts:index')
         )
         self.asserts_for_tests(response.context['page_obj'][0])
-        print('Корректный контекст index.')
+        print('test views: Корректный контекст index.')
 
     def test_group_list_context(self):
         """View: group_posts имеет соответствующий
@@ -96,7 +96,7 @@ class PostsViewsTests(TestCase):
             response.context.get('group').description,
             self.group.description
         )
-        print('Корректный контекст group_posts.')
+        print('test views: Корректный контекст group_posts.')
 
     def test_profile_show_correct_context(self):
         """View: profile  имеет соответствующий
@@ -109,7 +109,7 @@ class PostsViewsTests(TestCase):
             )
         )
         self.asserts_for_tests(response.context['page_obj'][0])
-        print('Корректный контекст profile.')
+        print('test views: Корректный контекст profile.')
 
     def test_post_detail_show_correct_context(self):
         """View: post_detail имеет соответствующий контекст."""
@@ -122,7 +122,7 @@ class PostsViewsTests(TestCase):
         self.assertEqual(
             response.context.get('post').id, self.post.id
         )
-        print('Корректный контекст post_detail.')
+        print('test views: Корректный контекст post_detail.')
 
     def test_create_post_correct_context(self):
         """View: post_create и post_edit имеют соответствующий
@@ -145,7 +145,8 @@ class PostsViewsTests(TestCase):
                 f_field = response.context.get('form')\
                     .fields.get(value)
                 self.assertIsInstance(f_field, values)
-        print('Корректные контексты post_create и post_edit.')
+        print(f'test views: Корректные контексты post_create '
+              f'и post_edit.')
 
     def test_new_post_appearance(self):
         """Проверка появления новой записи на всех
@@ -185,7 +186,8 @@ class PostsViewsTests(TestCase):
         for entity, entities in context.items():
             with self.subTest(element=entity):
                 self.assertEqual(entity, entities)
-        print('Везде правильно отображается новая запись.')
+        print(f'test views: Везде правильно отображается новая '
+              f'запись.')
 
     def test_post_not_found(self):
         """Проверка отсутствия записи не в той группе."""
@@ -197,7 +199,8 @@ class PostsViewsTests(TestCase):
         )
         context = response.context['page_obj'].object_list
         self.assertNotIn(self.post, [context])
-        print('Новая запись в чужих группах отсутствует.')
+        print(f'test views: Новая запись в чужих группах '
+              f'отсутствует.')
 
     def test_pages_uses_correct_template(self):
         """Проверка, что URL-адрес использует нужный шаблон."""
@@ -218,7 +221,7 @@ class PostsViewsTests(TestCase):
                     follow=True
                 )
                 self.assertTemplateUsed(response, templates)
-        print('URLs соответствуют своим шаблонам.')
+        print('test views: URLs соответствуют своим шаблонам.')
 
 
 class PaginatorViewsTest(TestCase):
@@ -262,4 +265,4 @@ class PaginatorViewsTest(TestCase):
         self.assertEqual(
             len(response.context['page_obj']), LIMIT_POSTS
         )
-        print('Паджинатор отображает не более 10 постов.')
+        print('test views: Паджинатор выводит не более 10 постов.')
