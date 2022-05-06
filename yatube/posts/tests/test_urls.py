@@ -17,7 +17,7 @@ class PostsURLsTests(TestCase):
         )
         cls.group = Group.objects.create(
             title='Тестовый заголовок',
-            slug='urls_group',
+            slug='urls_group_slug',
             description='Тестовое описание для URL',
         )
         cls.post = Post.objects.create(
