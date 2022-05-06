@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from ..models import Group, Post
+from yatube.settings import POST_SYMBOLS
 
 User = get_user_model()
 
@@ -19,7 +20,7 @@ class PostModelTests(TestCase):
         )
         cls.post = Post.objects.create(
             author=cls.user,
-            text='Текст тестового поста',
+            text='Тестовый текст',
         )
 
     def test_models_have_correct_object_names(self):
@@ -27,7 +28,7 @@ class PostModelTests(TestCase):
         работает __str__.
         """
         post = PostModelTests.post
-        expected_post_str = post.text
+        expected_post_str = post.text[:POST_SYMBOLS]
         self.assertEqual(expected_post_str, str(post))
 
         group = PostModelTests.group

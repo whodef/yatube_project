@@ -24,9 +24,9 @@ class PostsViewsTests(TestCase):
             description='Тестовое описание',
         )
         cls.post = Post.objects.create(
-            text='Тестовый пост',
             author=cls.author,
             group=cls.group,
+            text='Тестовый пост',
         )
         cls.group_check = Group.objects.create(
             title='Тестовое название группы',
