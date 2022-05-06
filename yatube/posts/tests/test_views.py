@@ -5,7 +5,6 @@ from django.test import Client, TestCase
 
 from ..forms import PostForm
 from ..models import Group, Post
-
 from yatube.settings import LIMIT_POSTS
 
 User = get_user_model()
@@ -42,23 +41,35 @@ class PostsViewsTests(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
-    def asserts_for_tests(self, test_object):
+    def service_asserts(self, test_object):
         """Служебные asserts."""
         self.assertEqual(
-            test_object.pk,
-            self.post.pk
+            test_object.pk, self.post.pk
         )
         self.assertEqual(
             test_object.author.username,
             self.post.author.username
         )
         self.assertEqual(
-            test_object.text,
-            self.post.text
+            test_object.group.title, self.group.title
         )
         self.assertEqual(
-            test_object.group.title,
-            self.group.title
+            test_object.text, self.post.text
+        )
+
+    def service_asserts_group(self, test_object):
+        """Служебные asserts для тестирования групп."""
+        self.assertEqual(
+            test_object.pk, self.group.id
+        )
+        self.assertEqual(
+            test_object.slug, self.group.slug
+        )
+        self.assertEqual(
+            test_object.title, self.group.title
+        )
+        self.assertEqual(
+            test_object.description, self.group.description
         )
 
     def test_homepage_shows_correct_context(self):
@@ -68,7 +79,7 @@ class PostsViewsTests(TestCase):
         response = self.authorized_client.get(
             reverse('posts:index')
         )
-        self.asserts_for_tests(response.context['page_obj'][0])
+        self.service_asserts(response.context['page_obj'][0])
         print('test views: Корректный контекст index.')
 
     def test_group_list_context(self):
@@ -81,34 +92,18 @@ class PostsViewsTests(TestCase):
                 kwargs={'slug': self.group.slug}
             )
         )
-
-        self.assertEqual(
-            response.context.get('group').slug, self.group.slug
-        )
-        self.assertEqual(
-            response.context.get('group').pk, self.group.id
-        )
-        self.assertEqual(
-            response.context.get('group').title,
-            self.group.title
-        )
-        self.assertEqual(
-            response.context.get('group').description,
-            self.group.description
-        )
+        self.service_asserts_group(response.context['group'])
         print('test views: Корректный контекст group_posts.')
 
     def test_profile_show_correct_context(self):
-        """View: profile  имеет соответствующий
-        контекст.
-        """
+        """View: profile  имеет соответствующий контекст."""
         response = self.authorized_client.get(
             reverse(
                 'posts:profile',
                 kwargs={'username': self.author.username}
             )
         )
-        self.asserts_for_tests(response.context['page_obj'][0])
+        self.service_asserts(response.context['page_obj'][0])
         print('test views: Корректный контекст profile.')
 
     def test_post_detail_show_correct_context(self):
@@ -149,9 +144,7 @@ class PostsViewsTests(TestCase):
               f'и post_edit.')
 
     def test_new_post_appearance(self):
-        """Проверка появления новой записи на всех
-        страницах.
-        """
+        """Проверка появления новой записи на всех страницах."""
         # На главной
         response = self.authorized_client.get(
             reverse('posts:index')

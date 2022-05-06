@@ -152,3 +152,5 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 # Custom Constants and No Magic Numbers
 
 LIMIT_POSTS = 10
+
+TEST_FORM_URL = '/auth/login/?next=/create/'
