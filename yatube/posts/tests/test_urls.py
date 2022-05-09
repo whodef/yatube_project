@@ -38,15 +38,9 @@ class PostsURLsTests(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         print('Главная страница работает без перебоя.')
 
-    def test_404_url_exists(self):
-        """Проверка страницы Not Found."""
-        response = self.guest_client.get('/group/urls_test/')
-        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-        print('Not Found работает как часы.')
-
     def test_group_url_exists(self):
-        """Проверка /group/test_slug/."""
-        response = self.guest_client.get('/group/urls_group/')
+        """Проверка /group/urls_group_slug/."""
+        response = self.guest_client.get('/group/urls_group_slug/')
         self.assertEqual(response.status_code, HTTPStatus.OK)
         print('Страницы групп доступны и тоже в рабочем состоянии.')
 
@@ -79,7 +73,7 @@ class PostsURLsTests(TestCase):
         """Проверка соответствия шаблонов к их URL'ам."""
         templates_urls = {
             '/': 'posts/index.html',
-            '/group/urls_group/': 'posts/group_list.html',
+            '/group/urls_group_slug/': 'posts/group_list.html',
             '/create/': 'posts/post_create.html',
             f'/posts/{self.post.pk}/': 'posts/post_detail.html',
             f'/profile/{self.author.username}/': 'posts/profile.html',
@@ -90,3 +84,9 @@ class PostsURLsTests(TestCase):
                 response = self.authorized_client.get(address)
                 self.assertTemplateUsed(response, template)
         print('URLs совпадают с ожидаемыми шаблонами.')
+
+    def test_404_url_exists(self):
+        """Проверка страницы Not Found."""
+        response = self.guest_client.get('/group/urls_test/')
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+        print('Not Found работает как часы.')
