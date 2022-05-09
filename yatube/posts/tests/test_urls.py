@@ -21,6 +21,7 @@ class PostsURLsTests(TestCase):
             description='Тестовое описание для URL',
         )
         cls.post = Post.objects.create(
+            id=1,
             group=cls.group,
             author=cls.author,
             text='Какой-то текст',
@@ -49,7 +50,7 @@ class PostsURLsTests(TestCase):
 
     def test_post_url_exists(self):
         """Проверка доступности страницы записи."""
-        response = self.guest_client.get('/posts/1/')
+        response = self.guest_client.get(f'/posts/{self.post.id}/')
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_create_url_redirect_anonymous(self):

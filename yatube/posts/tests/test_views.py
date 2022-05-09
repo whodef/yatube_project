@@ -133,8 +133,7 @@ class PostsViewsTests(TestCase):
 
         for value, values in form_fields.items():
             with self.subTest(value=value):
-                f_field = response.context.get('form')\
-                    .fields.get(value)
+                f_field = response.context.get('form').fields.get(value)
                 self.assertIsInstance(f_field, values)
 
     def test_new_post_appearance(self):
@@ -212,6 +211,7 @@ class PaginatorViewsTest(TestCase):
     def setUpClass(cls):
         super().setUpClass()
 
+        RANGE_SIZE = 21
         cls.posts = []
         cls.author = User.objects.create_user(
             username='paginator_author'
@@ -222,7 +222,7 @@ class PaginatorViewsTest(TestCase):
             description='Описание для паджинатора',
         )
 
-        for paginator_post in range(21):
+        for paginator_post in range(RANGE_SIZE):
             cls.posts.append(
                 Post(
                     author=cls.author,
