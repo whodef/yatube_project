@@ -61,7 +61,6 @@ class UserUrlTests(TestCase):
                 with self.subTest(client=client, url=url):
                     response = self.clients[client].get(url)
                     self.assertEqual(response.status_code, status_code)
-        print('Страницы доступны любому пользователю, коды верные.')
 
     def test_url_uses_correct_template(self):
         """Проверка соответствия шаблонов к их URL'ам."""
@@ -81,4 +80,3 @@ class UserUrlTests(TestCase):
             with self.subTest(address=url_address):
                 response = self.guest_client.get(url_address)
                 self.assertTemplateUsed(response, template)
-        print('Шаблоны страниц авторизации и URLs совпадают с ожидаемыми.')

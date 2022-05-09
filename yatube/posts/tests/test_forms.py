@@ -71,7 +71,6 @@ class PostsFormsTests(TestCase):
                 text=context['text'],
             ).exists()
         )
-        print('test forms: Новые записи успешно создаются.')
 
     def test_editing_post(self):
         """Тестирование редактирования записи."""
@@ -101,7 +100,6 @@ class PostsFormsTests(TestCase):
             id=self.post.id, text=context['text'],
             group=context['group']).exists()
         )
-        print('test forms: Записи успешно редактируются.')
 
     def test_anonim_client_create_post(self):
         """Тестирование возможности создания записи без
@@ -116,8 +114,6 @@ class PostsFormsTests(TestCase):
         )
         self.assertEqual(Post.objects.count(), post)
         self.assertRedirects(response, TEST_FORM_URL)
-
-        print('test forms: Записи без логина не создаются.')
 
     def test_edit_other_person_post(self):
         """Тестирование невозможности редактировать чужие записи."""
@@ -152,7 +148,6 @@ class PostsFormsTests(TestCase):
             response,
             reverse('posts:post_detail', args=[self.post.id])
         )
-        print('test forms: Чужие записи не редактируются.')
 
     def test_post_help_text(self):
         """Coverage-зависимость. Тестирование text_field и
@@ -169,4 +164,3 @@ class PostsFormsTests(TestCase):
                 self.assertEqual(
                     response._meta.get_field(field).help_text, fields
                 )
-        print('test forms: Формы text_field и group_field работают.')

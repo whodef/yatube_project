@@ -80,7 +80,6 @@ class PostsViewsTests(TestCase):
             reverse('posts:index')
         )
         self.service_asserts(response.context['page_obj'][0])
-        print('test views: Корректный контекст index.')
 
     def test_group_list_context(self):
         """View: group_posts имеет соответствующий
@@ -93,7 +92,6 @@ class PostsViewsTests(TestCase):
             )
         )
         self.service_asserts_group(response.context['group'])
-        print('test views: Корректный контекст group_posts.')
 
     def test_profile_show_correct_context(self):
         """View: profile  имеет соответствующий контекст."""
@@ -104,7 +102,6 @@ class PostsViewsTests(TestCase):
             )
         )
         self.service_asserts(response.context['page_obj'][0])
-        print('test views: Корректный контекст profile.')
 
     def test_post_detail_show_correct_context(self):
         """View: post_detail имеет соответствующий контекст."""
@@ -117,7 +114,6 @@ class PostsViewsTests(TestCase):
         self.assertEqual(
             response.context.get('post').id, self.post.id
         )
-        print('test views: Корректный контекст post_detail.')
 
     def test_create_post_correct_context(self):
         """View: post_create и post_edit имеют соответствующий
@@ -140,8 +136,6 @@ class PostsViewsTests(TestCase):
                 f_field = response.context.get('form')\
                     .fields.get(value)
                 self.assertIsInstance(f_field, values)
-        print(f'test views: Корректные контексты post_create '
-              f'и post_edit.')
 
     def test_new_post_appearance(self):
         """Проверка появления новой записи на всех страницах."""
@@ -179,8 +173,6 @@ class PostsViewsTests(TestCase):
         for entity, entities in context.items():
             with self.subTest(element=entity):
                 self.assertEqual(entity, entities)
-        print(f'test views: Везде правильно отображается новая '
-              f'запись.')
 
     def test_post_not_found(self):
         """Проверка отсутствия записи не в той группе."""
@@ -192,8 +184,6 @@ class PostsViewsTests(TestCase):
         )
         context = response.context['page_obj'].object_list
         self.assertNotIn(self.post, [context])
-        print(f'test views: Новая запись в чужих группах '
-              f'отсутствует.')
 
     def test_pages_uses_correct_template(self):
         """Проверка, что URL-адрес использует нужный шаблон."""
@@ -214,7 +204,6 @@ class PostsViewsTests(TestCase):
                     follow=True
                 )
                 self.assertTemplateUsed(response, templates)
-        print('test views: URLs соответствуют своим шаблонам.')
 
 
 class PaginatorViewsTest(TestCase):
@@ -258,4 +247,3 @@ class PaginatorViewsTest(TestCase):
         self.assertEqual(
             len(response.context['page_obj']), LIMIT_POSTS
         )
-        print('test views: Паджинатор выводит не более 10 постов.')

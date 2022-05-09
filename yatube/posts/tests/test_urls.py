@@ -36,38 +36,32 @@ class PostsURLsTests(TestCase):
         """Проверка главной страницы."""
         response = self.guest_client.get('/')
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        print('Главная страница работает без перебоя.')
 
     def test_group_url_exists(self):
         """Проверка /group/urls_group_slug/."""
         response = self.guest_client.get('/group/urls_group_slug/')
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        print('Страницы групп доступны и тоже в рабочем состоянии.')
 
     def test_profile_url_for_non_authorized(self):
         """Проверка доступности страницы пользователя."""
         response = self.guest_client.get('/profile/urls_user/')
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        print('Страница пользователя отображается.')
 
     def test_post_url_exists(self):
         """Проверка доступности страницы записи."""
         response = self.guest_client.get('/posts/1/')
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        print('Страницы записей отображаются.')
 
     def test_create_url_redirect_anonymous(self):
         """Редирект /create/ для анонимного пользователя."""
         response = self.guest_client.get('/create/', follow=True)
         # Без статус-кода
         self.assertRedirects(response, '/auth/login/?next=/create/')
-        print('Перенаправление вместо создания записи работает.')
 
     def test_create_url_for_authorized(self):
         """Проверка создания записи для авторизованных."""
         response = self.authorized_client.get('/create/')
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        print('Создание записи работает, если пользователь авторизован.')
 
     def test_urls_uses_correct_template(self):
         """Проверка соответствия шаблонов к их URL'ам."""
@@ -83,10 +77,8 @@ class PostsURLsTests(TestCase):
             with self.subTest(address=template):
                 response = self.authorized_client.get(address)
                 self.assertTemplateUsed(response, template)
-        print('URLs совпадают с ожидаемыми шаблонами.')
 
     def test_404_url_exists(self):
         """Проверка страницы Not Found."""
         response = self.guest_client.get('/group/urls_test/')
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-        print('Not Found работает как часы.')

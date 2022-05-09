@@ -35,7 +35,6 @@ class StaticPagesURLTests(TestCase):
                 with self.subTest(client=client, address=url_address):
                     response = self.clients[client].get(url_address)
                     self.assertEqual(response.status_code, HTTPStatus.OK)
-        print('Статические страницы доступны любому пользователю.')
 
     def test_static_url_uses_correct_template(self):
         """Проверка соответствия шаблонов к их URL'ам."""
@@ -48,4 +47,3 @@ class StaticPagesURLTests(TestCase):
             with self.subTest(address=url_address):
                 response = self.guest_client.get(url_address)
                 self.assertTemplateUsed(response, template)
-        print('Статические шаблоны страниц и URLs совпадают с ожидаемыми.')
