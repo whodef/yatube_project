@@ -1,10 +1,11 @@
+from http import HTTPStatus
+
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
 from ..models import Group, Post
 from ..forms import PostForm
-from yatube.settings import TEST_FORM_URL
 
 User = get_user_model()
 
@@ -48,15 +49,18 @@ class PostsFormsTests(TestCase):
         count_posts = Post.objects.count()
         context = {
             'group': self.group.id,
-            'text': 'Какой-то текст',
+            'text': 'Какой-то текст 1',
         }
         response = self.authorized_client.post(
             reverse('posts:post_create'),
             data=context,
-            follow=True
+            follow=False
         )
         self.assertEqual(
             Post.objects.latest('id').text, context['text']
+        )
+        self.assertEqual(
+            Post.objects.latest('id').group_id, context['group']
         )
         self.assertRedirects(
             response,
@@ -65,24 +69,19 @@ class PostsFormsTests(TestCase):
         self.assertEqual(
             Post.objects.count(), count_posts + 1
         )
-        self.assertTrue(
-            Post.objects.filter(
-                group=context['group'],
-                text=context['text'],
-            ).exists()
-        )
 
     def test_editing_post(self):
         """Тестирование редактирования записи."""
         count_posts = Post.objects.count()
+        latest_post_id = Post.objects.latest('id').id
         context = {
             'group': self.group_check.id,
-            'text': 'Какой-то текст',
+            'text': 'Какой-то текст 2',
         }
         response = self.authorized_client.post(
             reverse(
                 'posts:post_edit',
-                kwargs={'post_id': self.post.id}
+                kwargs={'post_id': latest_post_id}
             ),
             data=context,
             follow=True
@@ -90,32 +89,39 @@ class PostsFormsTests(TestCase):
         self.assertRedirects(
             response, reverse(
                 'posts:post_detail',
-                kwargs={'post_id': self.post.pk}
+                kwargs={'post_id': latest_post_id}
             )
         )
         self.assertEqual(
             Post.objects.count(), count_posts
         )
         self.assertTrue(Post.objects.filter(
-            id=self.post.id, text=context['text'],
+            id=latest_post_id, text=context['text'],
             group=context['group']).exists()
-        )
+                        )
 
-    def test_anonim_client_create_post(self):
-        """Тестирование возможности создания записи без
+    def test_guest_client_cannot_create_post(self):
+        """Тестирование невозможности создания записи без
         регистрации.
         """
-        post = Post.objects.count()
+        post_count = Post.objects.count()
 
         response = self.client.post(
             reverse('posts:post_create'),
-            data=self.form_data,
-            follow=True
+            data={
+                'group': 1,
+                'text': "Guest post",
+            },
+            follow=False
         )
-        self.assertEqual(Post.objects.count(), post)
-        self.assertRedirects(response, TEST_FORM_URL)
 
-    def test_edit_other_person_post(self):
+        self.assertRedirects(
+            response, '%s?next=/create/' % reverse('login')
+        )
+
+        self.assertEqual(Post.objects.count(), post_count)
+
+    def test_fail_to_edit_other_person_post(self):
         """Тестирование невозможности редактировать чужие записи."""
         user = User.objects.create(
             username='forms_some_other_user'
@@ -123,31 +129,13 @@ class PostsFormsTests(TestCase):
         auth_other_user = Client()
         auth_other_user.force_login(user)
 
-        form_data = {
-            'group': self.group.id,
-            'text': 'Какой-то текст',
-        }
-
         response = auth_other_user.post(
             reverse('posts:post_edit', args=[self.post.pk]),
-            data=form_data,
-            follow=True
+            data=self.form_data,
+            follow=False
         )
 
-        post = Post.objects.get(id=self.post.pk)
-        form_fields = [
-            [post.group, self.post.group],
-            [post.author, self.post.author],
-            [post.text, self.post.text],
-        ]
-
-        for field, attribute in form_fields:
-            self.assertEqual(field, attribute)
-
-        self.assertRedirects(
-            response,
-            reverse('posts:post_detail', args=[self.post.id])
-        )
+        self.assertTrue(HTTPStatus.FORBIDDEN, response.status_code)
 
     def test_post_help_text(self):
         """Coverage-зависимость. Тестирование text_field и

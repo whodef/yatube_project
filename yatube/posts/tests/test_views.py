@@ -186,13 +186,16 @@ class PostsViewsTests(TestCase):
 
     def test_pages_uses_correct_template(self):
         """Проверка, что URL-адрес использует нужный шаблон."""
+
+        self.authorized_client = Client()
+        self.authorized_client.force_login(self.author)
+
         template_pages = {
             '/': 'posts/index.html',
             '/group/views_group/': 'posts/group_list.html',
             '/create/': 'posts/post_create.html',
             f'/posts/{self.post.id}/': 'posts/post_detail.html',
-            f'/posts/{self.post.id}/edit/':
-                'posts/post_detail.html',
+            f'/posts/{self.post.id}/edit/': 'posts/post_edit.html',
             '/profile/views_user/': 'posts/profile.html',
         }
 

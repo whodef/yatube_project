@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
 
 from yatube.settings import LIMIT_POSTS
 from .models import Post, Group
@@ -111,4 +112,4 @@ def post_edit(request, post_id):
         }
         return render(request, 'posts/post_edit.html', context)
 
-    return redirect('posts:post_detail', post_id=post_id)
+    return HttpResponseForbidden()

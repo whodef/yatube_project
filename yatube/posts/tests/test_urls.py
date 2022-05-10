@@ -55,14 +55,13 @@ class PostsURLsTests(TestCase):
 
     def test_create_url_redirect_anonymous(self):
         """Редирект /create/ для анонимного пользователя."""
-        response = self.guest_client.get('/create/', follow=True)
-        # Без статус-кода
+        response = self.guest_client.post('/create/', follow=False)
         self.assertRedirects(response, '/auth/login/?next=/create/')
 
     def test_create_url_for_authorized(self):
         """Проверка создания записи для авторизованных."""
-        response = self.authorized_client.get('/create/')
-        self.assertEqual(response.status_code, HTTPStatus.OK)
+        response = self.authorized_client.post('/create/', data={'group': 1, 'text': "User Post"}, follow=False)
+        self.assertRedirects(response, '/profile/urls_user/')
 
     def test_urls_uses_correct_template(self):
         """Проверка соответствия шаблонов к их URL'ам."""
