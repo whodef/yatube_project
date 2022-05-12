@@ -3,8 +3,8 @@ from django import forms
 from django.urls import reverse
 from django.test import Client, TestCase
 
-from ..forms import PostForm
-from ..models import Group, Post
+from posts.forms import PostForm
+from posts.models import Group, Post
 from yatube.settings import LIMIT_POSTS
 
 User = get_user_model()
@@ -210,6 +210,7 @@ class PostsViewsTests(TestCase):
 
 class PaginatorViewsTest(TestCase):
     """Тестирование паджинатора."""
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

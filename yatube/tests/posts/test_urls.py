@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from django.test import Client, TestCase
 
-from ..models import Group, Post, User
+from posts.models import Group, Post, User
 
 
 class PostsURLsTests(TestCase):
@@ -60,7 +60,10 @@ class PostsURLsTests(TestCase):
 
     def test_create_url_for_authorized(self):
         """Проверка создания записи для авторизованных."""
-        response = self.authorized_client.post('/create/', data={'group': 1, 'text': "User Post"}, follow=False)
+        data = {'group': 1, 'text': "User Post"}
+        response = self.authorized_client.post(
+            '/create/', data, follow=False
+        )
         self.assertRedirects(response, '/profile/urls_user/')
 
     def test_urls_uses_correct_template(self):

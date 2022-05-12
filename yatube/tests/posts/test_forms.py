@@ -4,14 +4,15 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from ..models import Group, Post
-from ..forms import PostForm
+from posts.models import Group, Post
+from posts.forms import PostForm
 
 User = get_user_model()
 
 
 class PostsFormsTests(TestCase):
     """Тестирование формы поста."""
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -98,7 +99,7 @@ class PostsFormsTests(TestCase):
         self.assertTrue(Post.objects.filter(
             id=latest_post_id, text=context['text'],
             group=context['group']).exists()
-                        )
+        )
 
     def test_guest_client_cannot_create_post(self):
         """Тестирование невозможности создания записи без

@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from ..models import Group, Post
+from posts.models import Group, Post
 from yatube.settings import POST_SYMBOLS
 
 User = get_user_model()

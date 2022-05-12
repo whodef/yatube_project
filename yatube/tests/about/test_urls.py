@@ -8,6 +8,7 @@ User = get_user_model()
 
 class StaticPagesURLTests(TestCase):
     """Проверка статических страниц."""
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

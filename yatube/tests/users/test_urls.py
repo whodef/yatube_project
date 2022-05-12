@@ -10,6 +10,7 @@ class UserUrlTests(TestCase):
     """Проверка пользовательских страниц авторизации и
     регистрации.
     """
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
