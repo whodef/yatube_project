@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '=x0ykzv19m4xd3!nt)r674xo#4b^^x$&-#(e^_06y-&a1oz-4p'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -142,7 +142,6 @@ LOGIN_URL = 'users:login'
 
 LOGIN_REDIRECT_URL = 'posts:index'
 
-CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 
 # Connecting the engine filebased.EmailBackend
 
@@ -156,3 +155,8 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 LIMIT_POSTS = 10
 
 POST_SYMBOLS = 15
+
+
+# Custom Errors
+
+CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
