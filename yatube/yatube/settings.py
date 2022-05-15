@@ -164,3 +164,5 @@ CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 LIMIT_POSTS = 10
 
 POST_SYMBOLS = 15
+
+COMMENT_SYMBOLS = 60

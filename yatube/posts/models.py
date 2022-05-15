@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
-from yatube.settings import POST_SYMBOLS
+from yatube.settings import POST_SYMBOLS, COMMENT_SYMBOLS
 
 User = get_user_model()
 
@@ -54,3 +54,32 @@ class Post(models.Model):
 
     def __str__(self):
         return self.text[:POST_SYMBOLS]
+
+
+class Comment(models.Model):
+    created = models.DateTimeField(
+        verbose_name='Дата публикации',
+        auto_now_add=True
+    )
+    post = models.ForeignKey(
+        Post,
+        verbose_name='Пост',
+        related_name='comment',
+        on_delete=models.CASCADE
+    )
+    author = models.ForeignKey(
+        User,
+        verbose_name='Автор',
+        related_name='comment',
+        on_delete=models.CASCADE
+    )
+    text = models.TextField(
+        verbose_name='Текст',
+        help_text='Прокомментировать'
+    )
+
+    class Meta:
+        ordering = ['-created', ]
+
+    def __str__(self):
+        return self.text[:COMMENT_SYMBOLS]

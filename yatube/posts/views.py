@@ -8,7 +8,7 @@ from django.http import HttpResponseForbidden
 
 from yatube.settings import LIMIT_POSTS
 from .models import Post, Group
-from .forms import PostForm
+from .forms import PostForm, CommentForm
 
 
 def index(request):
@@ -30,7 +30,7 @@ def group_posts(request, slug):
     """Страница с постами определённой группы."""
 
     group = get_object_or_404(Group, slug=slug)
-    posts = Post.objects.all()
+    posts = Post.objects.filter(group=group)
     paginator = Paginator(posts, LIMIT_POSTS)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
@@ -38,6 +38,8 @@ def group_posts(request, slug):
     context = {
         'group': group,
         'page_obj': page,
+        'posts': posts,
+        'paginator': paginator,
     }
 
     return render(request, 'posts/group_list.html', context)
@@ -55,7 +57,7 @@ def profile(request, username):
     context = {
         'page_obj': page,
         'author': author,
-        "posts_count": author.posts.count()
+        'posts_count': author.posts.count()
     }
 
     return render(request, 'posts/profile.html', context)
@@ -65,11 +67,15 @@ def post_detail(request, post_id):
     """Раскрыть пост полностью."""
 
     post = get_object_or_404(Post, pk=post_id)
+    comments = post.comment.all()
+    comment_form = CommentForm(request.POST or None)
 
     context = {
-        "post": post,
-        "author": post.author,
-        "posts_count": post.author.posts.count()
+        'post': post,
+        'author': post.author,
+        'posts_count': post.author.posts.count(),
+        'comment_form': comment_form,
+        'comments': comments,
     }
 
     return render(request, 'posts/post_detail.html', context)
@@ -89,7 +95,7 @@ def post_create(request):
         return redirect("posts:profile", user.username)
 
     context = {
-        "form": form,
+        'form': form,
     }
 
     return render(request, "posts/post_create.html", context)
@@ -106,7 +112,7 @@ def post_edit(request, post_id):
             files=request.FILES or None,
             instance=post,
         )
-        if request.method == 'POST' and form.is_valid():
+        if form.is_valid():
             form.save()
             return redirect('posts:post_detail', post_id=post_id)
 
@@ -118,3 +124,18 @@ def post_edit(request, post_id):
         return render(request, 'posts/post_edit.html', context)
 
     return HttpResponseForbidden()
+
+
+@login_required
+def add_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    form = CommentForm(request.POST or None)
+
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.author = request.user
+        comment.post = post
+        comment.save()
+
+    return redirect('posts:post_detail', post_id=post_id)
+
