@@ -98,17 +98,22 @@ def post_create(request):
 @login_required
 def post_edit(request, post_id):
     """Отредактировать пост."""
-
     post = get_object_or_404(Post, pk=post_id)
 
     if request.user == post.author:
-        form = PostForm(instance=post, data=request.POST or None)
-        if form.is_valid():
+        form = PostForm(
+            request.POST or None,
+            files=request.FILES or None,
+            instance=post,
+        )
+        if request.method == 'POST' and form.is_valid():
             form.save()
             return redirect('posts:post_detail', post_id=post_id)
 
         context = {
+            'post': post,
             'form': form,
+            'is_edit': True,
         }
         return render(request, 'posts/post_edit.html', context)
 

@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
+from yatube.settings import POST_SYMBOLS
+
 User = get_user_model()
 
 
@@ -41,9 +43,14 @@ class Post(models.Model):
         verbose_name='Группа',
         help_text='Выберите группу для новой записи',
     )
+    image = models.ImageField(
+        verbose_name='Картинка',
+        upload_to='posts/',
+        blank=True
+    )
 
     class Meta:
         ordering = ['-pub_date', ]
 
     def __str__(self):
-        return self.text
+        return self.text[:POST_SYMBOLS]
