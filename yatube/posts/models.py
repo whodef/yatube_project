@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 
 from yatube.settings import POST_SYMBOLS, COMMENT_SYMBOLS
+from core.models import CreatedModel
 
 User = get_user_model()
 
@@ -21,13 +22,10 @@ class Group(models.Model):
         return self.title
 
 
-class Post(models.Model):
+class Post(CreatedModel):
     text = models.TextField(
         verbose_name='Текст',
         help_text='Добавьте текст для новой записи'
-    )
-    pub_date = models.DateTimeField(
-        auto_now_add=True
     )
     author = models.ForeignKey(
         User,
@@ -56,11 +54,7 @@ class Post(models.Model):
         return self.text[:POST_SYMBOLS]
 
 
-class Comment(models.Model):
-    created = models.DateTimeField(
-        verbose_name='Дата публикации',
-        auto_now_add=True
-    )
+class Comment(CreatedModel):
     post = models.ForeignKey(
         Post,
         verbose_name='Пост',
@@ -79,7 +73,7 @@ class Comment(models.Model):
     )
 
     class Meta:
-        ordering = ['-created', ]
+        ordering = ['-pub_date', ]
 
     def __str__(self):
         return self.text[:COMMENT_SYMBOLS]
