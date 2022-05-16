@@ -5,12 +5,14 @@ from django.core.paginator import Paginator
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
+from django.views.decorators.cache import cache_page
 
-from yatube.settings import LIMIT_POSTS
+from yatube.settings import LIMIT_POSTS, CACHE_TIMEOUT
 from .models import Post, Group
 from .forms import PostForm, CommentForm
 
 
+@cache_page(CACHE_TIMEOUT, key_prefix='main_page')
 def index(request):
     """Главная страница, отображающая общие посты."""
 
