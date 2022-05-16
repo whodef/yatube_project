@@ -12,7 +12,7 @@ from .models import Post, Group
 from .forms import PostForm, CommentForm
 
 
-@cache_page(CACHE_TIMEOUT, key_prefix='main_page')
+@cache_page(CACHE_TIMEOUT, key_prefix='index_page')
 def index(request):
     """Главная страница, отображающая общие посты."""
 
