@@ -8,7 +8,7 @@ from django.http import HttpResponseForbidden
 from django.views.decorators.cache import cache_page
 
 from yatube.settings import LIMIT_POSTS, CACHE_TIMEOUT
-from .models import Post, Group
+from .models import Post, Group, Follow
 from .forms import PostForm, CommentForm
 
 
@@ -61,6 +61,10 @@ def profile(request, username):
         'author': author,
         'posts_count': author.posts.count()
     }
+
+    if request.user.is_authenticated:
+        following_exist = request.user.follower.filter(author=author).exists()
+        context["following"] = following_exist
 
     return render(request, 'posts/profile.html', context)
 
@@ -141,3 +145,38 @@ def add_comment(request, post_id):
 
     return redirect('posts:post_detail', post_id=post_id)
 
+
+@login_required
+def follow_index(request):
+    authors_list = Follow.objects.filter(user=request.user).values_list('author')
+    post_list = Post.objects.filter(author__in=authors_list)
+    paginator = Paginator(post_list, LIMIT_POSTS)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+    context = {
+        'page': page,
+        'paginator': paginator,
+    }
+    return render(request, 'posts/follow.html', context)
+
+
+@login_required
+def profile_follow(request, username):
+    author = get_object_or_404(User, username=username)
+
+    if request.user == author:
+        return redirect('posts:profile', username=username)
+
+    Follow.objects.get_or_create(user=request.user, author=author)
+
+    return redirect('posts:profile', username=username)
+
+
+@login_required
+def profile_unfollow(request, username):
+    following = request.user.follower.filter(author__username=username).first()
+
+    if following:
+        following.delete()
+
+    return redirect('posts:profile', username=username)

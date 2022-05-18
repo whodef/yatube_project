@@ -77,3 +77,26 @@ class Comment(CreatedModel):
 
     def __str__(self):
         return self.text[:COMMENT_SYMBOLS]
+
+
+class Follow(models.Model):
+    user = models.ForeignKey(
+        User,
+        verbose_name='Подписчик',
+        related_name='follower',
+        on_delete=models.CASCADE
+    )
+    author = models.ForeignKey(
+        User,
+        verbose_name='Автор',
+        related_name='following',
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_following'
+            )
+        ]
