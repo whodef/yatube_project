@@ -183,7 +183,7 @@ class PostsViewsTests(TestCase):
                 self.assertEqual(entity, entities)
 
     def test_comment_show_correct_context_on_post_page(self):
-        """Правильно отображается на странице поста."""
+        """Комменты правильно отображаются на странице поста."""
         text = 'Текст комментария'
 
         Comment.objects.create(

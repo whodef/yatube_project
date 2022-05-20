@@ -159,7 +159,7 @@ def follow_index(request):
     page = paginator.get_page(page_number)
 
     context = {
-        'page': page,
+        'page_obj': page,
         'paginator': paginator,
     }
 
