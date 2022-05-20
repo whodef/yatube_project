@@ -69,8 +69,8 @@ class PostsURLsTests(TestCase):
     def test_urls_uses_correct_template(self):
         """Проверка соответствия шаблонов к их URL'ам."""
         templates_urls = {
-            '/': 'posts/index.html',
             '/group/urls_group_slug/': 'posts/group_list.html',
+            '/follow/': 'posts/follow.html',
             '/create/': 'posts/post_create.html',
             f'/posts/{self.post.pk}/': 'posts/post_detail.html',
             f'/profile/{self.author.username}/': 'posts/profile.html',

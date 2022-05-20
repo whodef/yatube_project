@@ -59,7 +59,7 @@ def profile(request, username):
     context = {
         'page_obj': page,
         'author': author,
-        'posts_count': author.posts.count()
+        'posts_count': author.posts.count(),
     }
 
     if request.user.is_authenticated:
@@ -134,6 +134,8 @@ def post_edit(request, post_id):
 
 @login_required
 def add_comment(request, post_id):
+    """Добавление комментария."""
+
     post = get_object_or_404(Post, id=post_id)
     form = CommentForm(request.POST or None)
 
@@ -148,20 +150,26 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
+    """Подписки."""
+
     authors_list = Follow.objects.filter(user=request.user).values_list('author')
     post_list = Post.objects.filter(author__in=authors_list)
     paginator = Paginator(post_list, LIMIT_POSTS)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
+
     context = {
         'page': page,
         'paginator': paginator,
     }
+
     return render(request, 'posts/follow.html', context)
 
 
 @login_required
 def profile_follow(request, username):
+    """Подписаться."""
+
     author = get_object_or_404(User, username=username)
 
     if request.user == author:
@@ -174,6 +182,8 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
+    """Отписаться."""
+
     following = request.user.follower.filter(author__username=username).first()
 
     if following:
