@@ -1,6 +1,4 @@
-from pprint import pprint
-
-from django.test import Client, TestCase
+from django.test import TestCase
 from django.urls import reverse
 from django.core.cache import cache
 
@@ -25,7 +23,7 @@ class FollowTests(TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(username='user')
-        self.authorized_client = Client()
+        self.authorized_client = self.client
         self.authorized_client.force_login(self.user)
         cache.clear()
 
@@ -43,7 +41,7 @@ class FollowTests(TestCase):
 
     def test_forbidden_user_subscribe_to_himself(self):
         """Пользователь не может подписаться на себя."""
-        author_client = Client()
+        author_client = self.client
         author_client.force_login(self.author)
 
         response = author_client.get(
@@ -75,12 +73,10 @@ class FollowTests(TestCase):
 
     def test_new_post_doesnt_show_in_feed_unsubscribed(self):
         """Пост не появляется в ленте у неподписанного пользователя."""
-        cache.clear()
         unsubscribe = User.objects.create_user(username='unsubscribe_user')
-        unsubscribed_client = Client()
+        unsubscribed_client = self.client
         unsubscribed_client.force_login(unsubscribe)
 
         response = unsubscribed_client.get(reverse('posts:follow_index'))
         context = response.context.get('page_obj').object_list
         self.assertNotIn(self.post1, context)
-

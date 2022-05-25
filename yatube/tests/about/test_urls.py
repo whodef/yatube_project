@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
+from django.test import TestCase
 
 User = get_user_model()
 
@@ -14,9 +14,9 @@ class StaticPagesURLTests(TestCase):
         super().setUpClass()
 
     def setUp(self):
-        self.guest_client = Client()
+        self.guest_client = self.client
         self.user = User.objects.create_user(username='urls_user')
-        self.authorized_client = Client()
+        self.authorized_client = self.client
         self.authorized_client.force_login(self.user)
 
         self.clients = {

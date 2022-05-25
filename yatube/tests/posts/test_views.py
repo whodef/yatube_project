@@ -2,14 +2,13 @@ import shutil
 import tempfile
 
 from django.contrib.auth import get_user_model
-from django.core.cache import cache
 from django import forms
 from django.urls import reverse
-from django.test import Client, TestCase
+from django.test import TestCase
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from yatube import settings
-from yatube.settings import LIMIT_POSTS
 from posts.forms import PostForm
 from posts.models import Group, Post, Comment
 
@@ -39,16 +38,37 @@ class PostsViewsTests(TestCase):
             b'\x02\x00\x01\x00\x00\x02\x02\x0C'
             b'\x0A\x00\x3B'
         )
-        cls.uploaded = SimpleUploadedFile(
+        cls.not_image = (
+            b'\x73\x69\x6d\x70\x6c\x65\x20\x74'
+            b'\x65\x78\x74\x20\x66\x69\x6c\x65'
+        )
+        uploaded = SimpleUploadedFile(
             name='small.gif',
             content=cls.small_gif,
-            content_type='image/gif'
+            content_type='image/gif',
         )
+        uploaded_not_image = SimpleUploadedFile(
+            name='not-image.txt',
+            content=cls.not_image,
+            content_type='text/plain',
+        )
+        cls.post_data = {
+            'text': 'Тестовый пост',
+            'group': cls.group,
+            'author': cls.author,
+            'image': uploaded,
+        }
+        cls.post_data_wrong = {
+            'text': 'Неправильный пост',
+            'group': cls.group,
+            'author': cls.author,
+            'image': uploaded_not_image,
+        }
         cls.post = Post.objects.create(
-            author=cls.author,
-            group=cls.group,
-            text='Тестовый пост',
-            image=cls.uploaded,
+            text=cls.post_data['text'],
+            group=cls.post_data['group'],
+            author=cls.post_data['author'],
+            image=cls.post_data['image'],
         )
         cls.group_check = Group.objects.create(
             title='Тестовое название группы',
@@ -59,8 +79,8 @@ class PostsViewsTests(TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(username='views_user')
-        self.guest_client = Client()
-        self.authorized_client = Client()
+        self.guest_client = self.client
+        self.authorized_client = self.client
         self.authorized_client.force_login(self.user)
         cache.clear()
 
@@ -85,9 +105,20 @@ class PostsViewsTests(TestCase):
         self.assertEqual(
             test_object.description, self.group.description)
 
+    def helper_contexts(self, response, context):
+        """Контексты для тестирования."""
+        context_detail = {
+            context.text: self.post_data['text'],
+            context.author.username: self.post_data['author'].username,
+            context.group.title: self.post_data['group'].title,
+        }
+
+        for context, expected in context_detail.items():
+            with self.subTest(response=response, context=context):
+                self.assertEqual(context, expected)
+
     def test_homepage_and_profile_show_correct_contexts(self):
         """View: index и profile получают соответствующий контекст."""
-        cache.clear()
         response_types = [
             self.authorized_client.get(reverse('posts:index')),
             self.authorized_client.get(
@@ -99,10 +130,22 @@ class PostsViewsTests(TestCase):
         ]
 
         for response in response_types:
-            post_object = response.context['page_obj'].object_list[0]
-            self.service_asserts(post_object)
+            context = response.context['page_obj'].object_list[0]
+            self.assertTrue(bool(context.image))
+            self.helper_contexts(response, context)
+            self.service_asserts(context)
 
-    def test_group_list_context(self):
+    def test_post_detail_show_correct_context(self):
+        """View: post_detail имеет соответствующий контекст."""
+        response = self.authorized_client.get(
+            reverse('posts:post_detail', kwargs={'post_id': self.post.id})
+        )
+        context = response.context['post']
+
+        self.assertTrue(bool(context.image))
+        self.helper_contexts(response, context)
+
+    def test_group_posts_context(self):
         """View: group_posts имеет соответствующий контекст."""
         response = self.authorized_client.get(
             reverse(
@@ -111,18 +154,6 @@ class PostsViewsTests(TestCase):
             )
         )
         self.service_asserts_group(response.context['group'])
-
-    def test_post_detail_show_correct_context(self):
-        """View: post_detail имеет соответствующий контекст."""
-        response = self.authorized_client.get(
-            reverse(
-                'posts:post_detail',
-                kwargs={'post_id': self.post.id}
-            )
-        )
-        self.assertEqual(
-            response.context.get('post').id, self.post.id
-        )
 
     def test_create_post_correct_context(self):
         """View: post_create и post_edit имеют соответствующий
@@ -145,22 +176,42 @@ class PostsViewsTests(TestCase):
                 f_field = response.context.get('form').fields.get(value)
                 self.assertIsInstance(f_field, values)
 
+    def test_comment_show_correct_context_on_post_page(self):
+        """Комменты правильно отображаются на странице поста с
+        тестированием контекста.
+        """
+        text = 'Текст комментария'
+
+        Comment.objects.create(
+            post=self.post,
+            author=self.author,
+            text=text,
+        )
+        response = self.authorized_client.get(
+            reverse('posts:post_detail', kwargs={'post_id': self.post.id})
+        )
+        context = response.context['comments'].first()
+
+        context_detail = {
+            context.post.id: self.post.id,
+            context.text: text,
+            context.author.username: self.author.username,
+        }
+
+        for context, expected in context_detail.items():
+            with self.subTest(context=context):
+                self.assertEqual(context, expected)
+
     def test_new_post_appearance(self):
         """Проверка появления новой записи на всех страницах."""
         # На главной
-        response = self.authorized_client.get(
-            reverse('posts:index')
-        )
+        response = self.authorized_client.get(reverse('posts:index'))
         self.assertEqual(
-            response.context['page_obj'][0], self.post
-        )
+            response.context['page_obj'][0], self.post)
 
         # В группе
         response = self.authorized_client.get(
-            reverse(
-                'posts:group_posts',
-                kwargs={'slug': 'views_group'}
-            )
+            reverse('posts:group_posts', kwargs={'slug': 'views_group'})
         )
 
         # В профиле пользователя
@@ -182,29 +233,22 @@ class PostsViewsTests(TestCase):
             with self.subTest(element=entity):
                 self.assertEqual(entity, entities)
 
-    def test_comment_show_correct_context_on_post_page(self):
-        """Комменты правильно отображаются на странице поста."""
-        text = 'Текст комментария'
+    def test_no_image_upload(self):
+        """Проверка загрузки другого файла вместо картинки."""
 
-        Comment.objects.create(
-            post=self.post,
-            author=self.author,
-            text=text,
+        response = self.authorized_client.post(
+            reverse('posts:post_create'),
+            {
+                'text': self.post_data_wrong['text'],
+                'image': self.post_data_wrong['image']
+            },
         )
 
-        response = self.authorized_client.get(
-            reverse('posts:post_detail', kwargs={'post_id': self.post.id})
+        self.assertFormError(
+            response, 'form', 'image',
+            u'Загрузите правильное изображение. Файл, который вы '
+            u'загрузили, поврежден или не является изображением.'
         )
-        context = response.context['comments'].first()
-        context_detail = {
-            context.post.id: self.post.id,
-            context.text: text,
-            context.author.username: self.author.username,
-        }
-
-        for context, expected in context_detail.items():
-            with self.subTest(context=context):
-                self.assertEqual(context, expected)
 
     def test_post_not_found(self):
         """Проверка отсутствия записи не в той группе."""
@@ -219,7 +263,7 @@ class PostsViewsTests(TestCase):
 
     def test_pages_uses_correct_template(self):
         """Проверка, что URL-адрес использует нужный шаблон."""
-        self.authorized_client = Client()
+        self.authorized_client = self.client
         self.authorized_client.force_login(self.author)
 
         template_pages = {
@@ -238,47 +282,3 @@ class PostsViewsTests(TestCase):
                     follow=True
                 )
                 self.assertTemplateUsed(response, templates)
-
-
-class PaginatorViewsTest(TestCase):
-    """Тестирование паджинатора."""
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-
-        RANGE_SIZE = 21
-        cls.posts = []
-        cls.author = User.objects.create_user(
-            username='paginator_author'
-        )
-        cls.group = Group.objects.create(
-            title='Заголовок для паджинатора',
-            slug='paginator_views',
-            description='Описание для паджинатора',
-        )
-
-        for paginator_post in range(RANGE_SIZE):
-            cls.posts.append(
-                Post(
-                    author=cls.author,
-                    group=cls.group,
-                    text=f'{paginator_post}',
-                )
-            )
-        Post.objects.bulk_create(cls.posts)
-
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username='paginator_user'
-        )
-        self.authorized_client = Client()
-        self.authorized_client.force_login(self.user)
-
-    def test_page_has_ten_posts(self):
-        """Паджинатор отображает не более 10 постов."""
-        cache.clear()
-        response = self.authorized_client.get(
-            reverse('posts:index')
-        )
-
-        self.assertEqual(len(response.context['page_obj']), LIMIT_POSTS)

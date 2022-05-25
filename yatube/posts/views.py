@@ -1,6 +1,4 @@
-from django.shortcuts import render
-from django.shortcuts import redirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -15,7 +13,6 @@ from .forms import PostForm, CommentForm
 @cache_page(CACHE_TIMEOUT, key_prefix='index_page')
 def index(request):
     """Главная страница, отображающая общие посты."""
-
     posts = Post.objects.all()
     paginator = Paginator(posts, LIMIT_POSTS)
     page_number = request.GET.get('page')
@@ -23,6 +20,8 @@ def index(request):
 
     context = {
         'page_obj': page,
+        'posts': posts,
+        'paginator': paginator,
     }
 
     return render(request, 'posts/index.html', context)
@@ -30,7 +29,6 @@ def index(request):
 
 def group_posts(request, slug):
     """Страница с постами определённой группы."""
-
     group = get_object_or_404(Group, slug=slug)
     posts = Post.objects.filter(group=group)
     paginator = Paginator(posts, LIMIT_POSTS)
@@ -49,7 +47,6 @@ def group_posts(request, slug):
 
 def profile(request, username):
     """Все посты в профиле пользователя."""
-
     author = get_object_or_404(User, username=username)
     posts = author.posts.all()
     paginator = Paginator(posts, LIMIT_POSTS)
@@ -57,9 +54,11 @@ def profile(request, username):
     page = paginator.get_page(page_number)
 
     context = {
-        'page_obj': page,
         'author': author,
+        'page_obj': page,
         'posts_count': author.posts.count(),
+        'posts': posts,
+        'paginator': paginator,
     }
 
     if request.user.is_authenticated:
@@ -71,7 +70,6 @@ def profile(request, username):
 
 def post_detail(request, post_id):
     """Раскрыть пост полностью."""
-
     post = get_object_or_404(Post, pk=post_id)
     comments = post.comment.all()
     comment_form = CommentForm(request.POST or None)
@@ -90,21 +88,24 @@ def post_detail(request, post_id):
 @login_required
 def post_create(request):
     """Создать новый пост."""
-
     user = request.user
-    form = PostForm(request.POST or None)
+
+    form = PostForm(
+        request.POST or None,
+        files=request.FILES or None,
+    )
 
     if form.is_valid():
         post = form.save(False)
         post.author = user
         post.save()
-        return redirect("posts:profile", user.username)
+        return redirect('posts:profile', user.username)
 
     context = {
         'form': form,
     }
 
-    return render(request, "posts/post_create.html", context)
+    return render(request, 'posts/post_create.html', context)
 
 
 @login_required
@@ -133,9 +134,17 @@ def post_edit(request, post_id):
 
 
 @login_required
+def delete_post(request, post_id):
+    """Удалить пост."""
+    remove_post = Post.objects.filter(pk=post_id)
+    remove_post.delete()
+
+    return redirect('posts:index')
+
+
+@login_required
 def add_comment(request, post_id):
     """Добавление комментария."""
-
     post = get_object_or_404(Post, id=post_id)
     form = CommentForm(request.POST or None)
 
@@ -150,10 +159,8 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    """Подписки."""
-
-    authors_list = Follow.objects.filter(user=request.user).values_list('author')
-    post_list = Post.objects.filter(author__in=authors_list)
+    """Все подписки."""
+    post_list = Post.objects.filter(author__following__user=request.user)
     paginator = Paginator(post_list, LIMIT_POSTS)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
@@ -169,24 +176,20 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     """Подписаться."""
-
     author = get_object_or_404(User, username=username)
 
     if request.user == author:
         return redirect('posts:profile', username=username)
 
     Follow.objects.get_or_create(user=request.user, author=author)
-
     return redirect('posts:profile', username=username)
 
 
 @login_required
 def profile_unfollow(request, username):
     """Отписаться."""
-
     following = request.user.follower.filter(author__username=username).first()
 
     if following:
         following.delete()
-
     return redirect('posts:profile', username=username)

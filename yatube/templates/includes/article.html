@@ -1,49 +1,45 @@
 <!DOCTYPE html>
 {% load thumbnail %}
 
-<article>
+<article class="card bg-light mb-3" style="padding: 20px">
   <ul class="list-group">
-    <li class="list-group-item list-group-item-secondary">
-
+    <li style="list-style-type: none; margin: 5px 0 15px">
       {% if post.author.get_full_name %}
-        Автор: {{ post.author.get_full_name }}
+        {{ post.author.get_full_name }}
       {% else %}
-        Автор: {{ post.author.username }}&nbsp;&nbsp;&nbsp;
+        @{{ post.author.username }}
       {% endif %}
 
-      <a href="{% url 'posts:profile' post.author.username %}">
-        <button type="button" class="btn btn-outline-secondary">
+      <a href="{% url 'posts:profile' post.author.username %}" style="margin: 0 20px">
+        <button type="button" class="btn btn-outline-secondary btn-sm">
           все посты пользователя
         </button>
       </a>
     </li>
-    <li class="list-group-item list-group-item-light">
-      Дата публикации: {{ post.pub_date|date:"d E Y" }}
+    <li style="list-style-type: none;">
+      <pre style="white-space: pre-wrap;">Дата публикации: {{ post.pub_date|date:"d E Y" }}</pre>
     </li>
   </ul>
-  <div class="card bg-light mb-3">
+  <div>
     <div class="card-body">
       {# Из post_detail перенесено сюда. Для превью на главной. #}
-      {% thumbnail post.image "660x159" crop="center" upscale=True as im %}
+      {% thumbnail post.image "660x259" crop="center" upscale=True as im %}
         <img class="card-img my-2" src="{{ im.url }}">
       {% endthumbnail %}
-      <p>{{ post.text }}</p>
+      <pre style="margin: 0; white-space: pre-wrap;">{{ post.text }}</pre>
     </div>
   </div>
-
-  <a href="{% url 'posts:post_detail' post.id %}">
-    <button type="button" class="btn btn-outline-primary">
+  <div class="btn-bar">
+    <a href="{% url 'posts:post_detail' post.id %}" type="button" class="btn btn-primary">
       подробная информация
-    </button>
-  </a>
-
-  {% if post.group %}
-    <a href="{% url 'posts:group_posts'  post.group.slug %}">
-      <button type="button" class="btn btn-outline-primary">
-        все записи группы
-      </button>
     </a>
-  {% endif %}
+
+    {% if post.group %}
+      <a href="{% url 'posts:group_posts'  post.group.slug %}" type="button" class="btn btn-outline-primary">
+        все записи группы
+      </a>
+    {% endif %}
+  </div>
 </article>
 
 {# под последним постом нет линии #}

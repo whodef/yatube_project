@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 from django.test import Client, TestCase
+from django.core.cache import cache
 
 from posts.models import Group, Post, User
 
@@ -30,8 +31,9 @@ class PostsURLsTests(TestCase):
     def setUp(self):
         self.guest_client = Client()
         self.user = User.objects.create_user(username='urls_user')
-        self.authorized_client = Client()
+        self.authorized_client = self.client
         self.authorized_client.force_login(self.user)
+        cache.clear()
 
     def test_home_url_exists(self):
         """Проверка главной страницы."""
