@@ -14,7 +14,7 @@
 
 # Yatube для друзей
 ### Описание
-Благодаря этому проекту можно будет смотреть видео-ролики в разных городах.
+Социальная сеть. Такая сеть и такая социальная.
 ### Технологии
 Python 3.7
 Django 2.2.19
@@ -28,3 +28,4 @@ pip install -r requirements.txt
 ```
 python3 manage.py runserver
 ```
+# <img src="https://media0.giphy.com/media/5hInqrO565wXpqduuI/200w.webp?cid=ecf05e4781thfxjkurxu3xtn6djnc6x35w4cb5eg6zyjnvxg&rid=200w.webp&ct=g" width="30px" height="17px"/> [Деплой](http://whodef.pythonanywhere.com/) проекта
